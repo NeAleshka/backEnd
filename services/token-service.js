@@ -21,8 +21,7 @@ class TokenService {
     }
 
     async removeToken(refreshToken) {
-        const tokenData = tokenModel.deleteOne({refreshToken});
-        return tokenData
+        return tokenModel.deleteOne({refreshToken})
     }
 
     validateAccessToken(token) {
@@ -42,19 +41,10 @@ class TokenService {
     }
 
     async findToken(refreshToken) {
-        const tokenData = tokenModel.findOne({refreshToken});
+        const tokenData = await tokenModel.findOne({refreshToken});
         return tokenData
     }
 
-    parseAuthHeader(authHeader) {
-        const tokens = authHeader.split(' ')
-        if(tokens.length !== 2) {
-           throw new Error('Invalid Auth header!')
-        } else if(tokens[0] !== 'Bearer') {
-            throw new Error('Must starts with Bearer')
-        }
-        return tokens[1]
-    }
 }
 
 module.exports = new TokenService()

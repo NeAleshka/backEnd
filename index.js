@@ -2,11 +2,17 @@ const express = require('express');
 const mongoose = require('mongoose');
 const router = require("./router");
 const app = express();
-const cors=require('cors')
+const cors = require('cors')
 const cookieParser=require('cookie-parser')
 require('dotenv').config()
 
-app.use(cors())
+const CorsOpt = {
+    origin: ['http://localhost:3000'],
+    credentials: true
+}
+
+
+app.use(cors(CorsOpt))
 app.use(cookieParser())
 app.use(express.json());
 app.use('/auth', router);

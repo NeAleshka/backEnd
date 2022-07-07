@@ -3,30 +3,29 @@ const jwt = require('jsonwebtoken')
 const UserService = require('./services/user-service')
 const mailService = require("./services/mail-service");
 const UserDto = require('./dto/user-dto')
-const tokenService=require('./services/token-service')
+const tokenService = require('./services/token-service')
 
 class authController {
     async me(req, res) {
         try {
-            const token = tokenService.parseAuthHeader(req.headers.authorization)
-            const decoded = tokenService.validateAccessToken(token)
-            if(!decoded) {
-                return res.status(401).send({
-                    isLogin:false,
-                    message: 'User not found!'
-                })
+            const decoded = tokenService.validateAccessToken(req.cookies.accessToken)
+            if (!decoded) {
+                const {refreshToken} = req.cookies
+                const userData = await UserService.refresh(refreshToken)
+                res.cookie('refreshToken', userData.refreshToken, {maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true})
+                res.cookie('accessToken', userData.accessToken, {maxAge: 30 * 60 * 1000, httpOnly: true})
             }
-            const user =await User.findById(decoded.userId)
-            const userDto=new UserDto(user)
-            if(user) {
+            const user = await User.findById(decoded.userId)
+            const userDto = new UserDto(user)
+            if (user) {
                 return res.status(200).send(
-                    { isLogin: true, userData: userDto})
+                    {isLogin: true, userData: userDto})
             } else {
-                return res.status(200).send({isLogin: false, data: null, message:"User not found!"})
+                return res.status(400).send({isLogin: false, data: null, message: "User not found!"})
             }
 
         } catch (e) {
-            return res.status(200).send({ isLogin: false, data: null, message: e.message })
+            return res.status(400).send({isLogin: false, data: null, message: e.message})
         }
     }
 
@@ -34,12 +33,12 @@ class authController {
         try {
             const {name, lastName, login, password, email, phone, birthday} = req.body
             const userData = await UserService.registrationUser(name, lastName, login, password, email, phone, birthday)
-            res.cookie('refreshToken', userData.refreshToken, {maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true})
-            res.cookie('accessToken', userData.accessToken, {maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true})
-            return res.status(200).send({
-                userData,
-                isLogin: true
-            })
+            res.cookie('userId', userData.id.toHexString(),{httpOnly:true})
+            if(userData){
+                return res.status(200).send({
+                    isLogin: true
+                })
+            }
         } catch (e) {
             console.log(e)
             return res.status(400).send({
@@ -55,6 +54,7 @@ class authController {
         try {
             const {password, login} = req.body
             const userData = await UserService.login(login, password)
+            res.cookie('accessToken', userData.accessToken, {maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true})
             res.cookie('refreshToken', userData.refreshToken, {maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true})
             return res.status(200).send({
                 userData: userData,
@@ -84,11 +84,16 @@ class authController {
 
     async verification(req, res) {
         try {
-            const {verificationCode, login} = req.body
-            const candidate = await User.findOne({login})
+            const {verificationCode} = req.body
+            const userId= req.headers.cookie.split('=')[1]
+            const candidate = await User.findById(userId)
             if (candidate) {
                 if (verificationCode === candidate.verificationCode) {
-                    const userDto=new UserDto(candidate)
+                    const tokens = tokenService.generateToken({userId: candidate._id})
+                    await tokenService.saveToken(candidate._id, tokens.refreshToken)
+                    res.cookie('refreshToken', tokens.refreshToken.toString(), {maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true})
+                    res.cookie('accessToken', tokens.accessToken.toString(), {maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true})
+                    const userDto = new UserDto(candidate)
                     return res.status(200).send(
                         {
                             message: 'Верификация пройдена',
@@ -112,31 +117,23 @@ class authController {
 
     async logout(req, res) {
         try {
-            const {refreshToken}=req.cookies
-            const token=await UserService.logout(refreshToken)
+            const {refreshToken} = req.cookies
+            const token = await UserService.logout(refreshToken)
             res.clearCookie('refreshToken')
-            return res.status(200)
+            res.clearCookie('accessToken')
+            res.clearCookie('userId')
+            return res.json(token)
         } catch (e) {
-          return res.status(400).json(e.message)
-        }
-    }
-
-    async refreshToken(req, res) {
-        try {
-           const {refreshToken}=req.cookies
-            const userData=await UserService.refresh(refreshToken)
-            res.cookie('refreshToken',userData.refreshToken, {maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true})
-            return res.json('RefreshToken ok')
-        } catch (e) {
-            console.log(e.message);
             return res.status(400).json(e.message)
         }
     }
 
+
     async confirmEmail(req, res) {
         try {
-            const {email, login} = req.body
-            const user = await User.findOne({login})
+            const {email} = req.body
+            const userId= req.headers.cookie.split('=')[1]
+            const user = await User.findById(userId)
             if (user) {
                 await mailService.sendVerificationCode(email, user.verificationCode)
                 return res.status(200).send({
@@ -147,9 +144,16 @@ class authController {
             console.log(e)
             res.status(400).send({
                 isVerification: false,
-                message: 'Пользователь с таким логином не найден'
+                message: 'Код не был отправлен,попробуйте позже'
             })
         }
+    }
+    async changeUserInfo(req,res){
+        console.log(req.body)
+        const {id}=req.body
+        const user= await User.findById(id)
+        const userDTO=new UserDto(user)
+        return res.status(200).send(userDTO)
     }
 
 }

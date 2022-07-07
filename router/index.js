@@ -9,7 +9,6 @@ router.post('/login',controller.login)
 router.post('/logout',controller.logout)
 router.post('/user/info',controller.getUser)
 router.post('/verification',controller.verification)
-router.get('/refreshToken',controller.refreshToken)
 router.post('/confirm_email',controller.confirmEmail)
-
+router.put('/change_info',controller.changeUserInfo)
 module.exports= router

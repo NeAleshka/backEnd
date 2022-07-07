@@ -15,6 +15,7 @@ class UserService {
         } else {
             const hashPassword = bcrypt.hashSync(password.toString(), 2)
             const confirmCode = Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000;
+            const bonuses=this.createBonuses()
             const newUser = await User.create({
                 name,
                 lastName,
@@ -23,12 +24,15 @@ class UserService {
                 phone:userPhone,
                 login,
                 birthday,
-                verificationCode: confirmCode
+                verificationCode: confirmCode,
+                bonuses,
+                cardNumber:'123456789012',
+                organizationInfo:{
+                    name:'BigKontora',
+                    logo:'https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Apple_logo_black.svg/170px-Apple_logo_black.svg.png'
+                }
             })
-            const userDto = new UserDto({name, lastName, phone, email})
-            const tokens = tokenService.generateToken({userId: newUser._id})
-            await tokenService.saveToken(newUser._id, tokens.refreshToken)
-            return { ...tokens, user:userDto}
+            return new UserDto({name,lastName,email,phone,id:newUser._id})
         }
     }
 
@@ -41,8 +45,9 @@ class UserService {
         if(!validPassword){
             throw new Error('Введён неверный пароль')
         }
+
         const userDto=new UserDto(loginUser)
-        const tokens=tokenService.generateToken({userId: loginUser._id})
+        const tokens = tokenService.generateToken({userId: loginUser._id})
         await tokenService.saveToken(loginUser._id,tokens.refreshToken)
         return{...tokens,user:userDto}
     }
@@ -59,11 +64,20 @@ class UserService {
         if(!userData || !tokenFromDB){
             throw ApiError.UnauthorizedError()
         }
-        const user=await User.findById(userData._id)
+        const user=await User.findById(userData.userId)
         const userDto=new UserDto(user)
         const tokens=tokenService.generateToken({...userDto})
-        await tokenService.saveToken(userData._id,tokens.refreshToken)
+        await tokenService.saveToken(userData.userId,tokens.refreshToken)
         return{...tokens,user:userDto}
+    }
+
+    createBonuses(){
+        return {
+            bonus:Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000,
+            points: Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000,
+            check: Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000,
+            sum: Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000,
+        }
     }
 }
 

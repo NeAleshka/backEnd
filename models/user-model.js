@@ -8,7 +8,18 @@ const UserModel=new mongoose.Schema({
     password:{type:String,},
     birthday:{type:String},
     email:{type:String,},
-    verificationCode:{type:Number}
+    verificationCode:{type:Number},
+    bonuses:{
+        bonus:{type:Number},
+        points:{type:Number},
+        check:{type:Number},
+        sum:{type:Number},
+    },
+    cardNumber:{type:String},
+    organizationInfo:{
+        name:{type:String},
+        logo:{type:String}
+    }
 })
 
 
