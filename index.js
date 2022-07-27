@@ -7,7 +7,7 @@ const cookieParser=require('cookie-parser')
 require('dotenv').config()
 
 const CorsOpt = {
-    origin: ['http://localhost:3000'],
+    origin: ['http://localhost:3000',"https://nealeshka.github.io"],
     credentials: true
 }
 
