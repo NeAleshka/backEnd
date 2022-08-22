@@ -30,24 +30,31 @@ class authController {
     }
 
     async regisration(req, res) {
-        try {
-            const {name, lastName, login, password, email, phone, birthday} = req.body
-            const userData = await UserService.registrationUser(name, lastName, login, password, email, phone, birthday)
-            res.cookie('userId', userData.id.toHexString(),{httpOnly:true})
-            if(userData){
-                return res.status(200).send({
-                    isLogin: true
+        // try {
+        //     const {name, lastName, login, password, email, phone, birthday} = req.body
+        //     const userData = await UserService.registrationUser(name, lastName, login, password, email, phone, birthday)
+        //     res.cookie('userId', userData.id.toHexString(),{httpOnly:true})
+        //     if(userData){
+        //         return res.status(200).send({
+        //             success: true
+        //
+        //         })
+        //     }
+        // } catch (e) {
+        //     console.log(e)
+        //     return res.status(400).send({
+        //         data: {
+        //             message: e.message,
+        //             isLogin: false,
+        //         },
+        //     })
+        // }
+        return res.status(400).send({
+                    error: {
+                        message: "Server Error",
+                    },
+                    success:false
                 })
-            }
-        } catch (e) {
-            console.log(e)
-            return res.status(400).send({
-                data: {
-                    message: e.message,
-                    isLogin: false,
-                },
-            })
-        }
     }
 
     async login(req, res) {
@@ -58,12 +65,15 @@ class authController {
             res.cookie('refreshToken', userData.refreshToken, {maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true})
             return res.status(200).send({
                 userData: userData,
-                isLogin: true
+                success: true
             })
         } catch (e) {
             console.log(e)
-            res.status(400).send({
-                isVerification: false,
+            res.status(200).send({
+                success: false,
+                error:{
+                    message: e.message
+                }
             })
         }
     }
