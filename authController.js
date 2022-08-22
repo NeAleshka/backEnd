@@ -64,7 +64,6 @@ class authController {
             console.log(e)
             res.status(400).send({
                 isVerification: false,
-                message: e.message
             })
         }
     }
