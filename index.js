@@ -15,7 +15,7 @@ const CorsOpt = {
 app.use(cors(CorsOpt))
 app.use(cookieParser())
 app.use(express.json());
-app.use('/auth', router);
+app.use('/app/client', router);
 
 const PORT = process.env.PORT || 5000;
 

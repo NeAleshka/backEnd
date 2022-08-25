@@ -11,7 +11,7 @@ class UserService {
         const userEmail=email
         const candidate = await User.findOne({login})
         if (candidate) {
-            throw new Error('Пользователь уже существует')
+            return {message: 'Пользователь уже существует'}
         } else {
             const hashPassword = bcrypt.hashSync(password.toString(), 2)
             const confirmCode = Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000;
