@@ -170,11 +170,36 @@ class authController {
     }
     async changeUserInfo(req,res){
         const id=req.headers.cookie.split(';')[0].split('=')[1]
-        const user= await User.findById(id)
+        const updateData=req.body
+        const user= await User.findOneAndUpdate(id,updateData,{
+            new:true
+        })
         const userDTO=new UserDto(user)
-        return res.status(200).send(userDTO)
+        return res.status(200).send({
+            success:true,
+            userDTO
+        })
     }
 
+    async getNews(req,res){
+        res.send({
+            success:true,
+            news:[
+                {
+                    title:'Новость 1',
+                    description:"Это описание новости 1"
+                },
+                {
+                    title:'Новость 2',
+                    description:"Это описание новости 2"
+                },
+                {
+                    title:'Новость 3',
+                    description:"Это описание новости 3"
+                },
+            ]
+        })
+    }
 }
 
 module.exports = new authController
