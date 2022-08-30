@@ -28,7 +28,7 @@ class authController {
     }
 
     async getUser(req, res) {
-        const decoded = tokenService.validateAccessToken(req.cookies.accessToken)
+        const decoded = tokenService.validateRefreshToken(req.cookies.refreshToken)
         if(!decoded){
            throw new Error('Ошибка получения юзера')
         }
@@ -176,7 +176,7 @@ class authController {
         const userDTO=new UserDto(user)
         return res.status(200).send({
             success:true,
-            userDTO
+            userData:userDTO
         })
     }
 

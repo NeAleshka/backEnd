@@ -4,8 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="29032708-a9f8-4f31-a5bb-b6315deb5828" name="Changes" comment="">
+    <list default="true" id="29032708-a9f8-4f31-a5bb-b6315deb5828" name="Changes" comment="refactor getUser">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/authController.js" beforeDir="false" afterPath="$PROJECT_DIR$/authController.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -134,6 +135,14 @@
       <workItem from="1661607787243" duration="1233000" />
       <workItem from="1661763055733" duration="7488000" />
     </task>
+    <task id="LOCAL-00001" summary="refactor getUser">
+      <created>1661848340588</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1661848340588</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -149,5 +158,9 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="refactor getUser" />
+    <option name="LAST_COMMIT_MESSAGE" value="refactor getUser" />
   </component>
 </project>
