@@ -1,5 +1,4 @@
 const User = require('./models/user-model')
-const jwt = require('jsonwebtoken')
 const UserService = require('./services/user-service')
 const mailService = require("./services/mail-service");
 const UserDto = require('./dto/user-dto')
@@ -40,10 +39,11 @@ class authController {
                 return res.status(200).send(
                     {success: true,userData: userDto})
             } else {
-                return res.status(400).send({success: false, data: null, message: "User not found!"})
+                return res.status(200).send({success: false, data: null, message: "User not found!"})
             }
         } catch (e) {
-            res.status(400).json({
+            res.status(200).json({
+                success:false,
                 message: e.message
             })
         }
@@ -117,7 +117,6 @@ class authController {
                     await tokenService.saveToken(candidate._id, tokens.refreshToken)
                     res.cookie('refreshToken', tokens.refreshToken.toString(), {maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true})
                     res.cookie('accessToken', tokens.accessToken.toString(), {maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true})
-                    const userDto = new UserDto(candidate)
                     return res.status(200).send(
                         {success: true}
                     )
